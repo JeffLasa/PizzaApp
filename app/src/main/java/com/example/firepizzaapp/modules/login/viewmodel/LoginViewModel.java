@@ -8,11 +8,14 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.firepizzaapp.repository.FirebaseRepository;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class LoginViewModel extends AndroidViewModel {
 
     MutableLiveData<Boolean> autenticadorLiveData = new MutableLiveData<>();
+    MutableLiveData<Boolean> loaderLiveData = new MutableLiveData<>();
     CompositeDisposable disposable = new CompositeDisposable();
     FirebaseRepository repository = new FirebaseRepository();
 
@@ -21,8 +24,25 @@ public class LoginViewModel extends AndroidViewModel {
         super(application);
     }
 
-    public void autenticarUsuario(String email , String senha){
-        
+    public MutableLiveData<Boolean> getAutenticadorLiveData() {
+        return autenticadorLiveData;
+
+    }
+
+    public MutableLiveData<Boolean> getLoaderLiveData() {
+        return loaderLiveData;
+    }
+
+    public void autenticarUsuario(String email, String senha) {
+        loaderLiveData.setValue(true);
+        disposable.add(
+                repository.autenticar(email, senha)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.newThread())
+                        .doOnTerminate(()-> loaderLiveData.setValue(false))
+                        .subscribe(() -> autenticadorLiveData.setValue(true),
+                                throwable -> autenticadorLiveData.setValue(false))
+        );
     }
 
 }

@@ -2,17 +2,21 @@ package com.example.firepizzaapp.modules.login.view;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.firepizzaapp.CadastrarActivity;
 import com.example.firepizzaapp.MainActivity;
 import com.example.firepizzaapp.R;
+import com.example.firepizzaapp.modules.login.viewmodel.LoginViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -23,11 +27,13 @@ import com.google.firebase.auth.FirebaseUser;
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
-    private FirebaseAuth firebaseAuth;
+
     private TextInputEditText emailEditText;
     private TextInputEditText senhaEditText;
     private Button loginButton;
     private Button cadastrarButton;
+    private LoginViewModel loginViewModel;
+    private ProgressBar progressBar;
 
 
     @Override
@@ -35,28 +41,35 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
 
-        firebaseAuth = FirebaseAuth.getInstance();
 
         emailEditText = findViewById(R.id.email_id);
         senhaEditText = findViewById(R.id.senha_id);
         loginButton = findViewById(R.id.button_enviar_id);
         cadastrarButton = findViewById(R.id.button_cadastrar_id);
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
+
+        loginButton.setOnClickListener(v -> logar());
 
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                logar();
-            }
-        });
+        cadastrarButton.setOnClickListener(v -> irParaCadastrar());
 
 
-        cadastrarButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                irParaCadastrar();
-            }
-        });
+        loginViewModel = ViewModelProviders.of(this).get(LoginViewModel.class);
+
+        loginViewModel.getAutenticadorLiveData()
+                .observe(this, autenticado ->{
+                    if(autenticado){
+                        irParaMain();
+                    }else{
+                        Toast.makeText(this,"Falha na autenticação",Toast.LENGTH_LONG).show();
+                    }
+                });
+
+        loginViewModel.getLoaderLiveData()
+                .observe(this,showLoader ->{
+                    progressBar.setVisibility(showLoader ? View.VISIBLE: View.GONE);
+                });
 
     }
 
@@ -68,35 +81,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private void logar() {
 
-        try {
             String email = emailEditText.getEditableText().toString();
-            String password = senhaEditText.getEditableText().toString();
-            firebaseAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                // Sign in success, update UI with the signed-in user's information
-                                Log.d(TAG, "signInWithEmail:success");
-                                FirebaseUser user = firebaseAuth.getCurrentUser();
-                                irParaMain();
-                            } else {
+            String senha = senhaEditText.getEditableText().toString();
 
-                                // If sign in fails, display a message to the user.
-                                Log.w(TAG, "signInWithEmail:failure", task.getException());
-                                Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                        Toast.LENGTH_SHORT).show();
-
-                            }
-
-                            // ...
-                        }
-                    });
-        } catch (IllegalArgumentException nexc) {
-
-
-        }
-
+            loginViewModel.autenticarUsuario(email, senha);
 
     }
 
