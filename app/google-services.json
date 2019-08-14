@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "84295811911",
+    "firebase_url": "https://fir-pizza1-app.firebaseio.com",
+    "project_id": "fir-pizza1-app",
+    "storage_bucket": "fir-pizza1-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:84295811911:android:2cf8ed5e5070035e",
+        "android_client_info": {
+          "package_name": "com.example.firepizzaapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "84295811911-o4aivutl8obk2q87aafm57g9dr6adjk2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmMQSHAM60-J4UxwNjfbUdJZEnlnM2xig"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "84295811911-o4aivutl8obk2q87aafm57g9dr6adjk2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
